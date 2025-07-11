@@ -32,6 +32,10 @@ The following milestones have been completed:
 4.  **Verification Script (`src/verify_setup.py`):**
     *   A test script that runs a single training iteration to confirm that the environment, data loading, model, and training logic are all configured correctly.
 
+5.  **GUI Predictor (`src/gui_predictor.py`):**
+    *   A graphical user interface built with Tkinter for interactive prediction.
+    *   Allows users to select any test image from a list and instantly view the original image, the ground-truth mask overlay, and the model's predicted mask overlay for easy comparison.
+
 ## 3. Setup for a New GPU Server
 
 Follow these steps to set up the project on a new machine, such as a GPU-enabled server.

@@ -5,3 +5,5 @@ albumentations
 tqdm
 torch
 torchvision
+matplotlib
+gradio
