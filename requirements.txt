@@ -1,0 +1,7 @@
+nibabel
+numpy
+opencv-python
+albumentations
+tqdm
+torch
+torchvision

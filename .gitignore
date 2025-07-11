@@ -1,0 +1,8 @@
+Micro_Ultrasound_Prostate_Segmentation_Dataset.zip
+dataset/Micro_Ultrasound_Prostate_Segmentation_Dataset/test/
+dataset/Micro_Ultrasound_Prostate_Segmentation_Dataset/train/
+
+## 数据集划分
+*.npy
+models/best_microsegnet_model.pth
+*.pyc
