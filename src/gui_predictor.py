@@ -6,7 +6,7 @@ import numpy as np
 import os
 import torch
 import cv2
-from .model import MicroSegNet
+from .models_zoo.base_model.model import MicroSegNet
 
 # --- Configuration ---
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'best_microsegnet_model.pth')

@@ -3,7 +3,7 @@
 import torch
 from torch.utils.data import DataLoader
 
-from model import MicroSegNet
+from models_zoo.base_model.model import MicroSegNet
 from train import ProstateDataset, DiceLoss
 
 def run_verification_test():
