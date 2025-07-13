@@ -18,18 +18,18 @@
 
 ## 3. 当前进度
 
-以下里程碑已经完成：
+### 阶段一：基础框架
 
-1.  **数据预处理 (`src/preprocess.py`):** 将原始数据处理为 `.npy` 切片。
-2.  **模型实现 (`src/model.py`):** 实现了基础的 `MicroSegNet` 架构。
-3.  **训练脚本 (`src/train.py`):** 为基础模型搭建了完整的训练流程。
-4.  **验证脚本 (`src/verify_setup.py`):** 用于确保环境配置正确的测试脚本。
-5.  **图形化预测工具 (`src/gui_predictor.py`):** 一个用于交互式预测和可视化的图形界面。
-6.  **集成注意力机制:**
-    *   通过 `models_zoo` 目录重构了项目结构以支持多模型管理。
-    *   实现了独立的 CBAM (卷积块注意力模块)。
-    *   创建了将 CBAM 集成到解码器跳跃连接中的新模型 `MicroSegNetAttention`。
-    *   为新模型提供了独立的训练脚本 `train_attention.py`。
+-   **数据预处理 (`src/preprocess.py`):** 实现了将原始NIFTI数据处理为2D `.npy` 切片的完整脚本。
+-   **模型实现:** 在 `src/models_zoo/base_model` 中实现了核心的 `MicroSegNet` 架构。
+-   **训练与验证:** 为基础模型建立了完整的训练流程 (`src/train.py`) 和验证脚本 (`src/verify_setup.py`)。
+
+### 阶段二：模型优化与重构
+
+-   **代码重构:** 创建了 `src/models_zoo/` 目录，以支持多模型架构的管理。
+-   **集成注意力机制:** 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中。
+-   **独立训练流程:** 为注意力模型创建了专属的训练脚本 (`src/train_attention.py`)。
+-   **高级GUI对比工具:** 开发了一个为消融研究设计的图形化工具 (`src/gui_predictor.py`)。它能动态加载 `models/` 目录下的所有可用模型，并支持任意两个模型进行并排对比，极大地便利了定性分析。
 
 ## 4. 新GPU服务器环境设置
 

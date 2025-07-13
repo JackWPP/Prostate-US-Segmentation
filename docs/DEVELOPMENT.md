@@ -18,18 +18,18 @@ The project follows a modular structure. Key components are located in the `src/
 
 ## 3. Current Progress
 
-The following milestones have been completed:
+### Phase 1: Basic Framework
 
-1.  **Data Preprocessing (`src/preprocess.py`):** Processes raw data into `.npy` slices.
-2.  **Model Implementation (`src/model.py`):** Implemented the base `MicroSegNet` architecture.
-3.  **Training Script (`src/train.py`):** Set up a full training pipeline for the base model.
-4.  **Verification Script (`src/verify_setup.py`):** A test script to ensure the environment is correctly configured.
-5.  **GUI Predictor (`src/gui_predictor.py`):** A graphical user interface for interactive prediction and visualization.
-6.  **Attention Mechanism Integration:**
-    *   Refactored the project structure to support multiple models via a `models_zoo` directory.
-    *   Implemented a standalone CBAM (Convolutional Block Attention Module).
-    *   Created a new model, `MicroSegNetAttention`, which integrates CBAM into the decoder's skip connections.
-    *   Provided a separate training script, `train_attention.py`, for the new model.
+-   **Data Preprocessing (`src/preprocess.py`):** A complete script for processing raw NIFTI data into 2D `.npy` slices.
+-   **Model Implementation:** The core `MicroSegNet` architecture was implemented in `src/models_zoo/base_model`.
+-   **Training & Verification:** A full training pipeline (`src/train.py`) and a verification script (`src/verify_setup.py`) were established for the base model.
+
+### Phase 2: Model Optimization & Refactoring
+
+-   **Code Refactoring:** Created the `src/models_zoo/` directory to support multiple model architectures.
+-   **Attention Mechanism:** Successfully implemented the **CBAM** attention module and integrated it into a new `MicroSegNetAttention` model.
+-   **Dedicated Training Scripts:** Created a separate training script (`src/train_attention.py`) for the attention model.
+-   **Advanced GUI Comparator:** Developed a sophisticated GUI tool (`src/gui_predictor.py`) for ablation studies. It dynamically loads all available models from the `models/` directory and allows for side-by-side comparison of any two models, greatly facilitating qualitative analysis.
 
 ## 4. Setup for a New GPU Server
 
