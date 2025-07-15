@@ -50,38 +50,42 @@ pip install -r requirements.txt
 此脚本会处理 `dataset/` 中的原始数据，并将其保存在 `processed_data/` 目录中。
 
 ```bash
-python src/preprocess.py
+python -m src.preprocess
 ```
 
-**第二步：验证设置** (可选，但推荐)
-在开始完整训练前，运行此脚本可快速检查环境、模型和数据加载是否都已正确配置。
-
-```bash
-python src/verify_setup.py
-```
-
-**第三步：开始训练**
-本项目提供了两个模型供训练：
+**第二步：开始训练**
+您可以选择训练项目中的任意模型：
 
 - **训练基础模型 (MicroSegNet)**:
   ```bash
-  python src/train.py
+  python -m src.train
   ```
 
-- **训练注意力模型 (MicroSegNet + CBAM)**:
+- **训���注意力模型 (MicroSegNet + CBAM)**:
   ```bash
-  python src/train_attention.py
+  python -m src.train_attention
   ```
 
-**第四步：模型对比与消融研究 (GUI)**
-此脚本将启动一个为消融研究定制的图形化对比工具。
+- **训练 U-Net 模型**:
+  ```bash
+  python -m src.train_unet
+  ```
+
+- **训练 TransUNet 模型**:
+  ```bash
+  python -m src.train_transunet
+  ```
+
+**第三步：模型对比与消融研究 (GUI)**
+此脚本将启动一个为消融研究定制的、可扩展的图形化对比工具。
 
 ```bash
-python src/gui_predictor.py
+python -m src.gui_predictor
 ```
 在GUI中，您可以：
 - 从顶部下拉菜单中选择任意测试图像。
 - 动态选择 `models/` 目录下的任意两个模型进行对比（模型A vs 模型B）。
+- GUI会自动识别并加载 `MicroSegNet`, `Attention`, `U-Net`, `TransUNet` 等所有已支持的模型。
 - 在界面中实时查看 **原始图像**、**真实掩码**、**模型A预测** 和 **模型B预测** 的四图对比，直观评估不同模型之间的差异。
 
 ---
@@ -94,21 +98,24 @@ python src/gui_predictor.py
 
 - **[✔️] 阶段二：模型优化与重构**
   - [x] **代码结构重构**: 创建了 `models_zoo` 目录，以支持多模型管理，将不同模型架构解耦。
-  - [x] **集成注意力机制**: 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中 (`src/models_zoo/attention_model`)。
+  - [x] **集成注意力机制**: 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中。
   - [x] **独立训练流程**: 为注意力模型创建了专属的训练脚本 (`src/train_attention.py`)。
-  - [x] **图形化预测工具**: 开发了一个基于 Tkinter 的 GUI (`src/gui_predictor.py`)。
+
+- **[✔️] 阶段三：实验与评估**
+  - [x] **集成新模型**: 成功将 **U-Net** 和 **TransUNet** 集成到项目中，并提供了独立的训练脚本。
+  - [x] **开发通用对比工具**: 将GUI工具升级为一个可扩展的、支持所有已实现模型的通用对比平台，极大地便利了消融实验和定性分析。
 
 ---
 
 ## 路线图
 
-- **[▶️] 阶段三：实验与评估 (进行中)**
-  - [x] **训练与评估注意力模型**: 执行 `train_attention.py` 并评估其性能。
-  - [x] **更新GUI对比工具**: 增强 `gui_predictor.py`，使其能够同时加载和对比基础模型与注意力模型的分割结果。
-  - [ ] **进行消融研究**: 系统性地评估不同模块（如CBAM）对模型性能的贡献。
-  - [ ] **与其他模型对比**: 将优化后的模型与 U-Net、TransUNet 等其他经典或前沿模型进行性能比较。
+- **[▶️] 阶段四：训练、评估与分析 (进行中)**
+  - [ ] **全面训练**: 执行所有模型的训练脚本，获取最优权重。
+  - [ ] **定量分析**: 编写脚本计算并对比不同模型在测试集上的 Dice Score, IoU, Precision, Recall 等关键指标。
+  - [ ] **定性分析**: 使用最终的GUI工具，进行可视化对比，分析不同模型在具体病例上的优劣。
+  - [ ] **准备研究报告**: 整理所有实验结果，撰写详细的技术报告或论文。
 
-- **[ ] 阶段四：进一步优化**
+- **[ ] 阶段五：进一步优化**
   - [ ] **探索多尺度特征融合**: 研究并实现更高效的特征金字塔或类似结构。
   - [ ] **应用深度监督**: 为模型的中间层添加辅助损失函数，以改善梯度流。
 
@@ -118,16 +125,12 @@ python src/gui_predictor.py
 
 *   **编程语言**: Python
 *   **深度学习框架**: **PyTorch**
-*   **核心模型**: MicroSegNet, U-Net
-*   **主要库**: OpenCV, Albumentations, Nibabel, NumPy
+*   **核心模型**: MicroSegNet, U-Net, TransUNet, Attention U-Net
+*   **主要库**: OpenCV, Albumentations, Nibabel, NumPy, Timm
 
 ## 数据集
 
 本项目使用的开源数据集可从 Zenodo 获取：[Micro-Ultrasound Prostate Segmentation Dataset](https://zenodo.org/records/10475293)。
-
-## 后续任务
-
-项目的未来工作将聚焦于集成**注意力机制**、**多尺度特征融合**和**深度监督**等先进技术，以进一步提升模型的分割精度。
 
 ## 许可证
 

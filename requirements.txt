@@ -7,3 +7,4 @@ torch
 torchvision
 matplotlib
 gradio
+timm
