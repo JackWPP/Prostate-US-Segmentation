@@ -32,3 +32,6 @@ image/mission/1752341147738.png
 image/mission/1752341156451.png
 image/mission/1752341165072.png
 models/attention/best_microsegnet_attention_model.pth
+models/transunet/best_transunet_model.pth
+models/unet/best_unet_model.pth
+test1.py

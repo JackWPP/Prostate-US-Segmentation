@@ -57,21 +57,22 @@ python -m src.preprocess
 您可以选择训练项目中的任意模型：
 
 - **训练基础模型 (MicroSegNet)**:
+
   ```bash
   python -m src.train
   ```
-
 - **训���注意力模型 (MicroSegNet + CBAM)**:
+
   ```bash
   python -m src.train_attention
   ```
-
 - **训练 U-Net 模型**:
+
   ```bash
   python -m src.train_unet
   ```
-
 - **训练 TransUNet 模型**:
+
   ```bash
   python -m src.train_transunet
   ```
@@ -82,40 +83,45 @@ python -m src.preprocess
 ```bash
 python -m src.gui_predictor
 ```
+
 在GUI中，您可以：
+
 - 从顶部下拉菜单中选择任意测试图像。
 - 动态选择 `models/` 目录下的任意两个模型进行对比（模型A vs 模型B）。
 - GUI会自动识别并加载 `MicroSegNet`, `Attention`, `U-Net`, `TransUNet` 等所有已支持的模型。
 - 在界面中实时查看 **原始图像**、**真实掩码**、**模型A预测** 和 **模型B预测** 的四图对比，直观评估不同模型之间的差异。
 
 ---
+
 ## 项目进度
 
 - **[✔️] 阶段一：基础框架搭建**
-  - [x] **数据预处理**: 实现了完整的脚本 (`src/preprocess.py`)。
-  - [x] **模型实现**: 在 PyTorch 中成功实现了 MicroSegNet 核心架构。
-  - [x] **训练与验证**: 搭建了完整的训练流程 (`src/train.py`) 和验证脚本。
 
+  - [X] **数据预处理**: 实现了完整的脚本 (`src/preprocess.py`)。
+  - [X] **模型实现**: 在 PyTorch 中成功实现了 MicroSegNet 核心架构。
+  - [X] **训练与验证**: 搭建了完整的训练流程 (`src/train.py`) 和验证脚本。
 - **[✔️] 阶段二：模型优化与重构**
-  - [x] **代码结构重构**: 创建了 `models_zoo` 目录，以支持多模型管理，将不同模型架构解耦。
-  - [x] **集成注意力机制**: 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中。
-  - [x] **独立训练流程**: 为注意力模型创建了专属的训练脚本 (`src/train_attention.py`)。
 
+  - [X] **代码结构重构**: 创建了 `models_zoo` 目录，以支持多模型管理，将不同模型架构解耦。
+  - [X] **集成注意力机制**: 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中。
+  - [X] **独立训练流程**: 为注意力模型创建了专属的训练脚本 (`src/train_attention.py`)。
 - **[✔️] 阶段三：实验与评估**
-  - [x] **集成新模型**: 成功将 **U-Net** 和 **TransUNet** 集成到项目中，并提供了独立的训练脚本。
-  - [x] **开发通用对比工具**: 将GUI工具升级为一个可扩展的、支持所有已实现模型的通用对比平台，极大地便利了消融实验和定性分析。
+
+  - [X] **集成新模型**: 成功将 **U-Net** 和 **TransUNet** 集成到项目中，并提供了独立的训练脚本。
+  - [X] **开发通用对比工具**: 将GUI工具升级为一个可扩展的、支持所有已实现模型的通用对比平台，极大地便利了消融实验和定性分析。
 
 ---
 
 ## 路线图
 
 - **[▶️] 阶段四：训练、评估与分析 (进行中)**
+
   - [ ] **全面训练**: 执行所有模型的训练脚本，获取最优权重。
   - [ ] **定量分析**: 编写脚本计算并对比不同模型在测试集上的 Dice Score, IoU, Precision, Recall 等关键指标。
   - [ ] **定性分析**: 使用最终的GUI工具，进行可视化对比，分析不同模型在具体病例上的优劣。
   - [ ] **准备研究报告**: 整理所有实验结果，撰写详细的技术报告或论文。
-
 - **[ ] 阶段五：进一步优化**
+
   - [ ] **探索多尺度特征融合**: 研究并实现更高效的特征金字塔或类似结构。
   - [ ] **应用深度监督**: 为模型的中间层添加辅助损失函数，以改善梯度流。
 
@@ -123,10 +129,10 @@ python -m src.gui_predictor
 
 ## 技术栈
 
-*   **编程语言**: Python
-*   **深度学习框架**: **PyTorch**
-*   **核心模型**: MicroSegNet, U-Net, TransUNet, Attention U-Net
-*   **主要库**: OpenCV, Albumentations, Nibabel, NumPy, Timm
+* **编程语言**: Python
+* **深度学习框架**: **PyTorch**
+* **核心模型**: MicroSegNet, U-Net, TransUNet, Attention U-Net
+* **主要库**: OpenCV, Albumentations, Nibabel, NumPy, Timm
 
 ## 数据集
 

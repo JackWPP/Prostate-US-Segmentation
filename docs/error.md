@@ -1,91 +1,55 @@
+PS C:\Users\WPP_JKW\Prostate-US-Segmentation> pip install -r requirements.txt
+Defaulting to user installation because normal site-packages is not writeable
+Looking in indexes: https://mirrors.aliyun.com/pypi/simple/
+Requirement already satisfied: nibabel in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 1)) (5.2.1)
+Requirement already satisfied: numpy in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 2)) (2.2.6)
+Requirement already satisfied: opencv-python in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 3)) (4.12.0.88)
+Requirement already satisfied: albumentations in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 4)) (2.0.8)
+Requirement already satisfied: tqdm in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 5)) (4.67.1)
+Requirement already satisfied: torch in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 6)) (2.7.1+cu128)
+Requirement already satisfied: torchvision in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 7)) (0.22.1+cu128)
+Requirement already satisfied: matplotlib in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 8)) (3.10.3)
+Requirement already satisfied: gradio in c:\users\wpp_jkw\appdata\roaming\python\python312\site-packages (from -r requirements.txt (line 9)) (5.16.0)
+Collecting mamba-ssm (from -r requirements.txt (line 10))
+  Downloading https://mirrors.aliyun.com/pypi/packages/1d/c7/6e21ecece28e6d625f42e708c7523cd78ec82d1622f98562f82bf02748b7/mamba_ssm-2.2.4.tar.gz (91 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... error
+  error: subprocess-exited-with-error
 
-PS C:\Users\WPP_JKW\Prostate-US-Segmentation> python src\visualize.py
-Starting Gradio interface...
-Open the following URL in your browser to view the UI.
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [26 lines of output]
+      C:\Users\WPP_JKW\AppData\Local\Temp\pip-build-env-m57afdx7\overlay\Lib\site-packages\torch\_subclasses\functional_tensor.py:276: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:81.)
+        cpu = _conversion_method_template(device=torch.device("cpu"))
+      `<string>`:118: UserWarning: mamba_ssm was requested, but nvcc was not found.  Are you sure your environment has nvcc available?  If you're installing within a container from https://hub.docker.com/r/pytorch/pytorch, only images whose names contain 'devel' will provide nvcc.
 
-* Running on local URL:  http://127.0.0.1:7860
-* Running on public URL: https://45e826f4e822ba5d15.gradio.live
+    torch.__version__  = 2.7.1+cpu
 
-This share link expires in 72 hours. For free permanent hosting and GPU upgrades, run `gradio deploy` from the terminal in the working directory to deploy to Hugging Face Spaces (https://huggingface.co/spaces)
-ERROR:    Exception in ASGI application
-Traceback (most recent call last):
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
-    result = await app(  # type: ignore[func-returns-value]
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
-    return await self.app(scope, receive, send)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\fastapi\applications.py", line 1054, in __call__
-    await super().__call__(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\applications.py", line 112, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\middleware\errors.py", line 187, in __call__
-    raise exc
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\middleware\errors.py", line 165, in __call__
-    await self.app(scope, receive, _send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio\route_utils.py", line 789, in __call__
-    await self.app(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
-    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\routing.py", line 714, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\routing.py", line 734, in app
-    await route.handle(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\routing.py", line 288, in handle
-    await self.app(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\routing.py", line 76, in app
-    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\routing.py", line 73, in app
-    response = await f(request)
-               ^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\fastapi\routing.py", line 301, in app
-    raw_response = await run_endpoint_function(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\fastapi\routing.py", line 214, in run_endpoint_function
-    return await run_in_threadpool(dependant.call, **values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\starlette\concurrency.py", line 37, in run_in_threadpool
-    return await anyio.to_thread.run_sync(func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\anyio\to_thread.py", line 33, in run_sync
-    return await get_asynclib().run_sync_in_worker_thread(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\anyio\_backends\_asyncio.py", line 877, in run_sync_in_worker_thread
-    return await future
-           ^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\anyio\_backends\_asyncio.py", line 807, in run
-    result = context.run(func, *args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio\routes.py", line 584, in main
-    gradio_api_info = api_info(request)
-                      ^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio\routes.py", line 615, in api_info
-    api_info = utils.safe_deepcopy(app.get_blocks().get_api_info())
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio\blocks.py", line 3048, in get_api_info
-    python_type = client_utils.json_schema_to_python_type(info)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio_client\utils.py", line 931, in json_schema_to_python_type
-    type_ = _json_schema_to_python_type(schema, schema.get("$defs"))
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio_client\utils.py", line 986, in _json_schema_to_python_type
-    f"{n}: {_json_schema_to_python_type(v, defs)}{get_desc(v)}"
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio_client\utils.py", line 993, in _json_schema_to_python_type
-    f"str, {_json_schema_to_python_type(schema['additionalProperties'], defs)}"
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio_client\utils.py", line 939, in _json_schema_to_python_type
-    type_ = get_type(schema)
-            ^^^^^^^^^^^^^^^^
-  File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\gradio_client\utils.py", line 898, in get_type
-    if "const" in schema:
-       ^^^^^^^^^^^^^^^^^
-TypeError: argument of type 'bool' is not iterable
+    Traceback (most recent call last):
+        File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\pip\_vendor\pyproject_hooks\_in_process\_in_process.py", line 389, in `<module>`
+          main()
+        File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\pip\_vendor\pyproject_hooks\_in_process\_in_process.py", line 373, in main
+          json_out["return_val"] = hook(**hook_input["kwargs"])
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "C:\Users\WPP_JKW\AppData\Roaming\Python\Python312\site-packages\pip\_vendor\pyproject_hooks\_in_process\_in_process.py", line 143, in get_requires_for_build_wheel
+          return hook(config_settings)
+                 ^^^^^^^^^^^^^^^^^^^^^
+        File "C:\Users\WPP_JKW\AppData\Local\Temp\pip-build-env-m57afdx7\overlay\Lib\site-packages\setuptools\build_meta.py", line 331, in get_requires_for_build_wheel
+          return self._get_build_requires(config_settings, requirements=[])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "C:\Users\WPP_JKW\AppData\Local\Temp\pip-build-env-m57afdx7\overlay\Lib\site-packages\setuptools\build_meta.py", line 301, in _get_build_requires
+          self.run_setup()
+        File "C:\Users\WPP_JKW\AppData\Local\Temp\pip-build-env-m57afdx7\overlay\Lib\site-packages\setuptools\build_meta.py", line 317, in run_setup
+          exec(code, locals())
+        File "`<string>`", line 188, in `<module>`
+      NameError: name 'bare_metal_version' is not defined
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: subprocess-exited-with-error
+
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+
+note: This error originates from a subprocess, and is likely not a problem with pip.

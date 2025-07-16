@@ -189,8 +189,10 @@ class App(tk.Tk):
             print(f"Loading model: {model_rel_path}...")
             
             # Determine model type from path
+            # Sort keys by length (descending) to match more specific names first
             model_key = "base" # Default
-            for key in MODEL_REGISTRY.keys():
+            sorted_keys = sorted(MODEL_REGISTRY.keys(), key=len, reverse=True)
+            for key in sorted_keys:
                 if key in model_rel_path.lower():
                     model_key = key
                     break

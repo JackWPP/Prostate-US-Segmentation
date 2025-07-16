@@ -7,4 +7,7 @@ torch
 torchvision
 matplotlib
 gradio
+mamba-ssm
+causal-conv1d
+einops
 timm
