@@ -38,3 +38,4 @@ test1.py
 models/mamba_unet_model.pth
 image.png
 GEMINI_HANDOVER_SUMMARY.md
+models/hm_segnet_model.pth
