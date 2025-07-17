@@ -1,4 +1,3 @@
-
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
@@ -14,7 +13,7 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
-from models_zoo.transunet.model import TransUNet
+from .models_zoo.transunet.model import TransUNet
 
 # --- Configuration ---
 DATA_DIR = os.path.join(PROJECT_ROOT, 'processed_data')
@@ -24,12 +23,13 @@ TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test', 'images')
 TEST_MASK_DIR = os.path.join(DATA_DIR, 'test', 'masks')
 MODEL_SAVE_DIR = os.path.join(PROJECT_ROOT, 'models', 'transunet')
 
-# Hyperparameters
-LEARNING_RATE = 1e-4
-BATCH_SIZE = 4  # TransUNet is memory intensive, a smaller batch size is recommended
-NUM_EPOCHS = 50
+# --- Hyperparameters ---
+# Adjusted for a more professional training strategy for a large model
+LEARNING_RATE = 1e-5  # Lower learning rate for stable convergence
+BATCH_SIZE = 4      # TransUNet is memory intensive
+NUM_EPOCHS = 150    # Increased epochs for proper training
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-VIT_MODEL_NAME = 'vit_base_patch16_224_in21k' # You can change this to other ViT models from timm
+VIT_MODEL_NAME = 'vit_base_patch16_224_in21k'
 
 # --- Dataset ---
 class ProstateDataset(Dataset):
@@ -53,17 +53,39 @@ class ProstateDataset(Dataset):
             augmented = self.transform(image=image, mask=mask)
             image = augmented['image']
             mask = augmented['mask']
+        
+        # Ensure mask has the correct dimensions: from (H, W, 1) to (1, H, W)
+        if not isinstance(mask, torch.Tensor):
+            mask = torch.from_numpy(mask)
+        
+        if len(mask.shape) == 3 and mask.shape[-1] == 1:
+            mask = mask.squeeze(-1)  # Remove the last dimension: (H, W, 1) -> (H, W)
+        
+        if len(mask.shape) == 2:
+            mask = mask.unsqueeze(0)  # Add channel dimension: (H, W) -> (1, H, W)
             
-        return image, mask.unsqueeze(0)
+        return image, mask
 
 # --- Loss Function ---
+# Using a compound loss is generally more robust
+class CompoundLoss(nn.Module):
+    def __init__(self, smooth=1e-6):
+        super(CompoundLoss, self).__init__()
+        self.dice_loss = DiceLoss(smooth)
+        self.bce_loss = nn.BCELoss()  # Changed from BCEWithLogitsLoss since model outputs sigmoid
+
+    def forward(self, pred, target):
+        dice = self.dice_loss(pred, target)
+        bce = self.bce_loss(pred, target)
+        return bce + dice
+
 class DiceLoss(nn.Module):
     def __init__(self, smooth=1e-6):
         super(DiceLoss, self).__init__()
         self.smooth = smooth
 
     def forward(self, pred, target):
-        pred = torch.sigmoid(pred)
+        # pred is already sigmoid activated from the model
         pred_flat = pred.contiguous().view(-1)
         target_flat = target.contiguous().view(-1)
         intersection = (pred_flat * target_flat).sum()
@@ -89,21 +111,22 @@ def main():
 
     # Datasets and DataLoaders
     train_dataset = ProstateDataset(TRAIN_IMAGE_DIR, TRAIN_MASK_DIR, transform=train_transform)
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
     
     test_dataset = ProstateDataset(TEST_IMAGE_DIR, TEST_MASK_DIR, transform=val_transform)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-    # Model, Optimizer, Loss
+    # Model, Optimizer, Loss, and Scheduler
     model = TransUNet(
         img_size=256, 
         num_classes=1, 
         vit_model_name=VIT_MODEL_NAME, 
-        pretrained=True  # Temporarily set to False to avoid network issues
+        pretrained=False  # Changed to False to avoid potential dimension issues with pretrained weights
     ).to(DEVICE)
     
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    criterion = DiceLoss()
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS, eta_min=1e-7)
+    criterion = CompoundLoss()
 
     # Training Loop
     best_dice_score = 0.0
@@ -129,6 +152,9 @@ def main():
             progress_bar.set_postfix(loss=loss.item())
 
         avg_train_loss = train_loss / len(train_loader)
+        
+        # Update learning rate
+        scheduler.step()
 
         # Validation
         model.eval()
@@ -147,7 +173,7 @@ def main():
 
         avg_val_dice = val_dice_score / len(test_loader)
         
-        print(f"Epoch [{epoch+1}/{NUM_EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Dice Score: {avg_val_dice:.4f}")
+        print(f"Epoch [{epoch+1}/{NUM_EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Dice Score: {avg_val_dice:.4f}, LR: {scheduler.get_last_lr()[0]:.1e}")
 
         if avg_val_dice > best_dice_score:
             best_dice_score = avg_val_dice

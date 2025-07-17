@@ -16,7 +16,7 @@ from .unet_refiner import UNetWithMambaRefiner
 # --- Configuration ---
 DATA_DIR = 'processed_data/train'
 MODEL_SAVE_PATH = 'models/unet_refiner_model.pth'
-NUM_EPOCHS = 50
+NUM_EPOCHS = 3
 BATCH_SIZE = 8
 LEARNING_RATE = 1e-4
 IMAGE_HEIGHT = 256
