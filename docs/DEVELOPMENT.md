@@ -11,84 +11,51 @@ The goal of this project is to develop a deep learning model for segmenting the 
 The project follows a modular structure. Key components are located in the `src/` directory. A notable feature is the `src/models_zoo/` directory, designed to manage multiple model architectures independently.
 
 - `src/models_zoo/base_model`: Contains the original `MicroSegNet` implementation.
-- `src/models_zoo/attention_model`: Contains the `MicroSegNetAttention` model, which integrates the CBAM attention mechanism.
-- `src/train.py`: Script for training the base model.
-- `src/train_attention.py`: Script for training the attention model.
+- `src/models_zoo/attention_model`: Contains the `MicroSegNetAttention` model.
+- `src/hm_segnet.py`: Contains the experimental `HMSegNet` model, which integrates Mamba blocks into the `MicroSegNet` architecture.
 - `src/gui_predictor.py`: A Tkinter-based GUI for visual evaluation.
 
 ## 3. Current Progress
 
-### Phase 1: Basic Framework
+### Phase 1 & 2: Foundational Work
+- Established the base `MicroSegNet` and `MicroSegNetAttention` models and their training pipelines.
 
--   **Data Preprocessing (`src/preprocess.py`):** A complete script for processing raw NIFTI data into 2D `.npy` slices.
--   **Model Implementation:** The core `MicroSegNet` architecture was implemented in `src/models_zoo/base_model`.
--   **Training & Verification:** A full training pipeline (`src/train.py`) and a verification script (`src/verify_setup.py`) were established for the base model.
+### Phase 3: Integration of Advanced Architectures
+- Successfully integrated standard `U-Net` and `TransUNet` models into the project, providing a robust set of baseline and advanced architectures.
 
-### Phase 2: Model Optimization & Refactoring
+### Phase 4: HM-SegNet Implementation
+- **Correct Interpretation:** After multiple unsuccessful attempts to integrate Mamba with a standard U-Net, a thorough review of `docs/mamba.md` revealed the correct approach: integrating Mamba with the DenseNet-like structure of `MicroSegNet`.
+- **Successful Implementation:** A new model, `HMSegNet`, was created in `src/hm_segnet.py`. This was achieved by inheriting from the base `MicroSegNet` class and replacing the convolutional `_DenseLayer` with a new `_MambaDenseLayer` in the encoder's `_DenseBlock`s. This approach correctly follows the technical documentation and preserves the model's critical skip-connection logic.
+- **Training Pipeline:** A dedicated training script, `src/train_hm_segnet.py`, was created for the new model.
 
--   **Code Refactoring:** Created the `src/models_zoo/` directory to support multiple model architectures.
--   **Attention Mechanism:** Successfully implemented the **CBAM** attention module and integrated it into a new `MicroSegNetAttention` model.
--   **Dedicated Training Scripts:** Created a separate training script (`src/train_attention.py`) for the attention model.
--   **Advanced GUI Comparator:** Developed a sophisticated GUI tool (`src/gui_predictor.py`) for ablation studies. It dynamically loads all available models from the `models/` directory and allows for side-by-side comparison of any two models, greatly facilitating qualitative analysis.
-
-### Phase 3: Exploring Advanced Architectures
-
--   **Integration of U-Net and TransUNet:** Successfully added `U-Net` and `TransUNet` to the project, each with its own dedicated training script.
--   **Implementation and Debugging of Mamba-UNet:**
-    -   **Initial Implementation:** Implemented a `MambaUNet` based on the U-Mamba architecture, where Mamba blocks were used throughout the encoder.
-    -   **Iterative Debugging:** The initial model failed to learn effectively. The debugging process involved several key steps:
-        1.  **Activation Function Fix:** Corrected a conflict between the model's final `Sigmoid` layer and the `BCEWithLogitsLoss` function.
-        2.  **Normalization Layer Fix:** Addressed issues with mixed `BatchNorm` and `LayerNorm` layers, which caused unstable training.
-        3.  **Vanishing Gradient Fix:** Identified that an overly deep decoder was impeding gradient flow. The decoder was simplified to a more standard, robust U-Net design.
-    -   **Final Hybrid Architecture:** The final, successful model is a **hybrid CNN-Mamba architecture**. It uses standard convolutional blocks in the early encoder stages to extract robust low-level features, and Mamba blocks in the deeper stages to model long-range dependencies. This design proved to be stable and effective in initial tests.
-
-## 4. Setup for a New GPU Server
-
-Follow these steps to set up the project on a new machine.
-
-### Step 1: Clone the Repository
-...
-### Step 2: Set Up a Python Environment
-...
-### Step 3: Install Dependencies
-...
-
-## 5. How to Run the Project
-
-Make sure you have activated the virtual environment before running the scripts.
+## 4. How to Run the Project
 
 ### Step 1: Run Data Preprocessing
 This only needs to be done once.
 ```bash
-python src/preprocess.py
+python -m src.preprocess
 ```
 
-### Step 2: Verify the Setup (Optional)
-This script checks the base model and data loading.
-```bash
-python src/verify_setup.py
-```
-
-### Step 3: Start Model Training
-You can train either the base model or the new attention-enhanced model.
+### Step 2: Start Model Training
+You can train any of the available models. `TransUNet` is the recommended production-ready model, while `HMSegNet` is the recommended experimental model.
 
 - **To train the base MicroSegNet model:**
   ```bash
-  python src/train.py
+  python -m src.train
   ```
-  The best model will be saved in `models/best_microsegnet_model.pth`.
-
-- **To train the MicroSegNetAttention model:**
+- **To train the TransUNet model:**
   ```bash
-  python src/train_attention.py
+  python -m src.train_transunet
   ```
-  The best model will be saved in `models/attention/best_microsegnet_attention_model.pth`.
+- **To train the HMSegNet model:**
+  ```bash
+  python -m src.train_hm_segnet
+  ```
 
-## 6. Next Steps
+## 5. Next Steps
 
-As outlined in `docs/work.md`, the next phase of the project will focus on:
+The primary focus is now on training and evaluating the existing, powerful models in the repository.
 
-*   **Integrating Attention Mechanisms:** To help the model focus on more relevant features.
-*   **Implementing Multi-Scale Feature Fusion:** To better capture details at different resolutions.
-*   **Adding Deep Supervision:** To improve gradient flow and training for deeper networks.
-
+*   **Train and Evaluate:** Perform full training runs (50-100 epochs) on `TransUNet` and `HMSegNet` to compare their performance.
+*   **Quantitative Analysis:** Write scripts to calculate and compare key metrics (Dice, IoU, etc.) for all models.
+*   **Qualitative Analysis:** Use the GUI tool to visually compare the results and identify strengths and weaknesses of each model.

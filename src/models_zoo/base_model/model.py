@@ -46,8 +46,9 @@ class MicroSegNet(nn.Module):
     MicroSegNet: A U-Net like architecture with DenseNet blocks in the encoder.
     """
     def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16),
-                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=1):
+                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=1, use_sigmoid=True):
         super(MicroSegNet, self).__init__()
+        self.use_sigmoid = use_sigmoid
 
         # Initial convolution
         self.features = nn.Sequential(
@@ -157,7 +158,9 @@ class MicroSegNet(nn.Module):
 
         # --- Final Output ---
         out = self.classifier(x)
-        return torch.sigmoid(out) # Use sigmoid for binary segmentation
+        if self.use_sigmoid:
+            return torch.sigmoid(out)
+        return out
 
 if __name__ == '__main__':
     # Test the model with a dummy input

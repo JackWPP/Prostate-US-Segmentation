@@ -11,83 +11,51 @@
 项目遵循模块化结构，核心组件位于 `src/` 目录下。一个显著的特点是 `src/models_zoo/` 目录，其设计旨在独立管理多种模型架构。
 
 - `src/models_zoo/base_model`: 包含原始的 `MicroSegNet` 实现。
-- `src/models_zoo/attention_model`: 包含集成了 CBAM 注意力机制的 `MicroSegNetAttention` 模型。
-- `src/train.py`: 用于训练基础模型的脚本。
-- `src/train_attention.py`: 用于训练注意力模型的脚本。
+- `src/models_zoo/attention_model`: 包含集成了CBAM注意力机制的 `MicroSegNetAttention` 模型。
+- `src/hm_segnet.py`: 包含实验性的 `HMSegNet` 模型，该模型将Mamba模块集成到了 `MicroSegNet` 架构中。
 - `src/gui_predictor.py`: 一个基于 Tkinter 的图形化评估工具。
 
 ## 3. 当前进度
 
-### 阶段一：基础框架
+### 阶段一与阶段二：基础工作
+- 成功建立了 `MicroSegNet` 和 `MicroSegNetAttention` 基础模型及其训练流程。
 
--   **数据预处理 (`src/preprocess.py`):** 实现了将原始NIFTI数据处理为2D `.npy` 切片的完整脚本。
--   **模型实现:** 在 `src/models_zoo/base_model` 中实现了核心的 `MicroSegNet` 架构。
--   **训练与验证:** 为基础模型建立了完整的训练流程 (`src/train.py`) 和验证脚本 (`src/verify_setup.py`)。
+### 阶段三：集成先进架构
+- 成功将标准的 `U-Net` 和 `TransUNet` 模型集成到项目中，提供了一套强大的基��和先进架构。
 
-### 阶段二：模型优化与重构
+### 阶段四：HM-SegNet 实现
+- **正确解读**: 在多次尝试将Mamba与标准U-Net结合失败后，通过深入复审 `docs/mamba.md`，我们最终明确了正确的方案：将Mamba与 `MicroSegNet` 的类DenseNet结构进行融合。
+- **成功实现**: 在 `src/hm_segnet.py` 中创建了新模型 `HMSegNet`。我们通过继承 `MicroSegNet` 基类，并将其编码器中 `_DenseBlock` 里的卷积层 `_DenseLayer` 替换为新的 `_MambaDenseLayer`，最终成功实现了该混合模型。此方法精确地遵循了技术文档，并保留了模型关键的跳跃连接逻辑。
+- **建立训练流程**: 为新模型创建了专属的训练脚本 `src/train_hm_segnet.py`。
 
--   **代码重构:** 创建了 `src/models_zoo/` 目录，以支持多模型架构的管理。
--   **集成注意力机制:** 成功实现了 **CBAM** 注意力模块，并将其集成到新的 `MicroSegNetAttention` 模型中。
--   **独立训练流程:** 为注意力模型创建了专属的训练脚本 (`src/train_attention.py`)。
--   **高级GUI对比工具:** 开发了一个为消融研究设计的图形化工具 (`src/gui_predictor.py`)。它��动态加载 `models/` 目录下的所有可用模型，并支持任意两个模型进行并排对比，极大地便利了定性分析。
-
-### 阶段三：探索前沿架构
-
--   **集成U-Net与TransUNet:** 成功将 `U-Net` 和 `TransUNet` 添加到项目中，并为它们各自创建了独立的训练脚本。
--   **Mamba-UNet的实现与调试:**
-    -   **初步实现:** 基于U-Mamba思想，实现了一个编码器完全由Mamba模块构成的 `MambaUNet` 初始版本。
-    -   **迭代调试:** 初版模型无法有效学习。整个调试过程包含以下几个关键步骤：
-        1.  **修复激活函数:** 解决了模型末端 `Sigmoid` 激活层与 `BCEWithLogitsLoss` 损失函数之间的冲突。
-        2.  **修复归一化层:** 修正了因 `BatchNorm` 和 `LayerNorm` 混合使用不当导致的训练不稳定问题。
-        3.  **修复梯度消失:** 发现过于深邃的解码器阻碍了梯度回传，因此将其简化为更标准、更鲁棒的U-Net解码器结构。
-    -   **最终混合架构:** 最终成功的模型是一个**混合式CNN-Mamba架构**。它在编码器的浅层使用标准卷积模块提取稳健的底层特征，在深层则使用Mamba模块处理长距离依赖关系。该设计在初步测试中被证明是稳定且有效的。
-
-## 4. 新GPU服务器环境设置
-
-请按照以下步骤在新设备上配置项目。
-
-### 步骤 1: 克隆代码仓库
-...
-### 步骤 2: 设置Python环境
-...
-### 步骤 3: 安装依赖
-...
-
-## 5. 如何运行项目
-
-在运行脚本前，请确保已激活虚拟环境。
+## 4. 如何运行项目
 
 ### 步骤 1: 运行数据预处理
 此步骤只需执行一次。
 ```bash
-python src/preprocess.py
+python -m src.preprocess
 ```
 
-### 步骤 2: 验证设置 (可选)
-此脚本会检查基础模型和数据加载流程。
-```bash
-python src/verify_setup.py
-```
-
-### 步骤 3: 开始模型训练
-您可以选择训练基础模型或新的注意力增强模型。
+### 步骤 2: 开始模型训练
+您可以训练任何一个可用的模型。`TransUNet` 是推荐的、可用于生产的模型，而 `HMSegNet` 是推荐的实验性模型。
 
 - **训练基础 MicroSegNet 模型:**
   ```bash
-  python src/train.py
+  python -m src.train
   ```
-  最佳模型将保存在 `models/best_microsegnet_model.pth`。
-
-- **训练 MicroSegNetAttention 模型:**
+- **训练 TransUNet 模型:**
   ```bash
-  python src/train_attention.py
+  python -m src.train_transunet
   ```
-  最佳模型将保存在 `models/attention/best_microsegnet_attention_model.pth`。
+- **训练 HMSegNet 模型:**
+  ```bash
+  python -m src.train_hm_segnet
+  ```
 
-## 6. 后续任务
+## 5. 后续任务
 
-正如 `docs/work.md` 中所述，项目的下一阶段将专注于：
+现在，项目的主要焦点是训练和评估仓库中现��且强大的模型。
 
-*   **集成注意力机制**：帮助模型关注更相关的图像特征。
-*   **实现多尺度特征融合**：更好地捕捉不同分辨率下的细节信息。
-*   **添加深度监督**：改善深层网络的梯度流，辅助训练过程。
+*   **训练与评估:** 对 `TransUNet` 和 `HMSegNet` 进行一次完整的、长时间的训练（50-100个周期），以比较它们的性能。
+*   **定量分析:** 编写脚本来计算并比较所有模型的关键指标（Dice、IoU等）。
+*   **定性分析:** 使用GUI工具来直观对比结果，识别每个模型的优缺点。
