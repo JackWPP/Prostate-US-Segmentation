@@ -16,7 +16,7 @@ except ImportError:
     Mamba = None
     print("Warning: mamba-ssm is not installed. This model will not be usable.")
 
-from .model import _Transition, _DenseBlock # Re-using components from MicroSegNet where applicable
+from .models_zoo.base_model.model import _Transition, _DenseBlock # Re-using components from MicroSegNet where applicable
 
 # A basic Conv-Norm-Act block for residual connections
 class ConvNormAct(nn.Module):
@@ -85,14 +85,12 @@ class UMambaBlock(nn.Module):
         self.res_block1 = ConvNormAct(in_channels, out_channels, norm_layer=norm_layer)
         self.res_block2 = ConvNormAct(out_channels, out_channels, norm_layer=norm_layer)
         
-        # Permute for LayerNorm and VSSBlock
-        self.pre_vss_norm = norm_layer(out_channels)
         self.vss_block = VSSBlock(hidden_dim=out_channels, norm_layer=nn.LayerNorm, d_state=d_state)
 
     def forward(self, x):
         # 1. Pass through two residual conv blocks
-        x = self.res_block1(x)
-        x_res = self.res_block2(x)
+        x_res = self.res_block1(x)
+        x_res = self.res_block2(x_res)
         
         # 2. Pass through VSS block
         # VSSBlock expects (B, H, W, C)
@@ -100,9 +98,10 @@ class UMambaBlock(nn.Module):
         x_vss_out = self.vss_block(x_vss_in)
         
         # Permute back to (B, C, H, W)
-        x_out = x_vss_out.permute(0, 3, 1, 2)
+        x_vss_out = x_vss_out.permute(0, 3, 1, 2)
         
-        return x_out
+        # Add a residual connection
+        return x_res + x_vss_out
 
 
 class MambaUNet(nn.Module):
@@ -114,12 +113,20 @@ class MambaUNet(nn.Module):
         features = init_features
         
         # --- Encoder ---
-        self.encoder1 = UMambaBlock(in_channels, features, d_state=d_state)
+        # Start with standard convolutional blocks to extract robust local features
+        self.encoder1 = nn.Sequential(
+            ConvNormAct(in_channels, features),
+            ConvNormAct(features, features)
+        )
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
         
-        self.encoder2 = UMambaBlock(features, features * 2, d_state=d_state)
+        self.encoder2 = nn.Sequential(
+            ConvNormAct(features, features * 2),
+            ConvNormAct(features * 2, features * 2)
+        )
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
         
+        # Introduce Mamba blocks in deeper, more semantic stages
         self.encoder3 = UMambaBlock(features * 2, features * 4, d_state=d_state)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
         
@@ -129,9 +136,9 @@ class MambaUNet(nn.Module):
         # --- Bottleneck ---
         self.bottleneck = UMambaBlock(features * 8, features * 16, d_state=d_state)
 
-        # --- Decoder ---
+        # --- Decoder (Convolutional for precise localization) ---
         self.upconv4 = nn.ConvTranspose2d(features * 16, features * 8, kernel_size=2, stride=2)
-        self.decoder4 = ConvNormAct(features * 16, features * 8) # Using simple Conv block in decoder
+        self.decoder4 = ConvNormAct(features * 16, features * 8)
         
         self.upconv3 = nn.ConvTranspose2d(features * 8, features * 4, kernel_size=2, stride=2)
         self.decoder3 = ConvNormAct(features * 8, features * 4)
@@ -172,7 +179,7 @@ class MambaUNet(nn.Module):
         dec1 = torch.cat((dec1, enc1), dim=1)
         dec1 = self.decoder1(dec1)
         
-        return torch.sigmoid(self.classifier(dec1))
+        return self.classifier(dec1)
 
 
 # --- Test Block ---

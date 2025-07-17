@@ -31,6 +31,17 @@ The project follows a modular structure. Key components are located in the `src/
 -   **Dedicated Training Scripts:** Created a separate training script (`src/train_attention.py`) for the attention model.
 -   **Advanced GUI Comparator:** Developed a sophisticated GUI tool (`src/gui_predictor.py`) for ablation studies. It dynamically loads all available models from the `models/` directory and allows for side-by-side comparison of any two models, greatly facilitating qualitative analysis.
 
+### Phase 3: Exploring Advanced Architectures
+
+-   **Integration of U-Net and TransUNet:** Successfully added `U-Net` and `TransUNet` to the project, each with its own dedicated training script.
+-   **Implementation and Debugging of Mamba-UNet:**
+    -   **Initial Implementation:** Implemented a `MambaUNet` based on the U-Mamba architecture, where Mamba blocks were used throughout the encoder.
+    -   **Iterative Debugging:** The initial model failed to learn effectively. The debugging process involved several key steps:
+        1.  **Activation Function Fix:** Corrected a conflict between the model's final `Sigmoid` layer and the `BCEWithLogitsLoss` function.
+        2.  **Normalization Layer Fix:** Addressed issues with mixed `BatchNorm` and `LayerNorm` layers, which caused unstable training.
+        3.  **Vanishing Gradient Fix:** Identified that an overly deep decoder was impeding gradient flow. The decoder was simplified to a more standard, robust U-Net design.
+    -   **Final Hybrid Architecture:** The final, successful model is a **hybrid CNN-Mamba architecture**. It uses standard convolutional blocks in the early encoder stages to extract robust low-level features, and Mamba blocks in the deeper stages to model long-range dependencies. This design proved to be stable and effective in initial tests.
+
 ## 4. Setup for a New GPU Server
 
 Follow these steps to set up the project on a new machine.

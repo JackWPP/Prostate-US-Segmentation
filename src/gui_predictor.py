@@ -33,6 +33,7 @@ MODEL_REGISTRY = {
     "attention": ("src.models_zoo.attention_model.model", "MicroSegNetAttention"),
     "unet": ("src.models_zoo.unet.model", "UNet"),
     "transunet": ("src.models_zoo.transunet.model", "TransUNet"),
+    "mamba": ("src.mamba_unet", "MambaUNet"),
 }
 
 class App(tk.Tk):
