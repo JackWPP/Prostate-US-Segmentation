@@ -39,3 +39,8 @@ models/mamba_unet_model.pth
 image.png
 GEMINI_HANDOVER_SUMMARY.md
 models/hm_segnet_model.pth
+models/transunet/best_transunet_model.pth.old
+models/base/best_base_model.pth
+models_temp/attention/best_attention_model.pth
+models_temp/unet/best_unet_model.pth
+models_temp/base/best_base_model.pth

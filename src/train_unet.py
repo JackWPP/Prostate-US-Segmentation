@@ -14,7 +14,7 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
-from models_zoo.unet.model import UNet
+from src.models_zoo.unet.model import UNet
 
 # --- Configuration ---
 DATA_DIR = os.path.join(PROJECT_ROOT, 'processed_data')
@@ -22,13 +22,13 @@ TRAIN_IMAGE_DIR = os.path.join(DATA_DIR, 'train', 'images')
 TRAIN_MASK_DIR = os.path.join(DATA_DIR, 'train', 'masks')
 TEST_IMAGE_DIR = os.path.join(DATA_DIR, 'test', 'images')
 TEST_MASK_DIR = os.path.join(DATA_DIR, 'test', 'masks')
-MODEL_SAVE_DIR = os.path.join(PROJECT_ROOT, 'models', 'unet')
-
 # Hyperparameters
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 8
 NUM_EPOCHS = 50 # Adjust as needed
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MODEL_SAVE_DIR = os.path.join(PROJECT_ROOT, 'models', 'unet')
+LOG_SAVE_PATH = os.path.join(MODEL_SAVE_DIR, 'training_log.csv')
 
 # --- Dataset ---
 class ProstateDataset(Dataset):
@@ -69,6 +69,12 @@ class DiceLoss(nn.Module):
         dice_score = (2. * intersection + self.smooth) / (pred_flat.sum() + target_flat.sum() + self.smooth)
         return 1 - dice_score
 
+import pandas as pd
+
+# ... (rest of the imports)
+
+# ... (rest of the code before main)
+
 # --- Main Training Logic ---
 def main():
     print(f"--- Starting U-Net Training on {DEVICE} ---")
@@ -100,6 +106,9 @@ def main():
     # Training Loop
     best_dice_score = 0.0
     os.makedirs(MODEL_SAVE_DIR, exist_ok=True)
+    
+    # For logging
+    log_history = []
 
     for epoch in range(NUM_EPOCHS):
         model.train()
@@ -143,6 +152,13 @@ def main():
         avg_val_dice = val_dice_score / len(test_loader)
         
         print(f"Epoch [{epoch+1}/{NUM_EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Dice Score: {avg_val_dice:.4f}")
+        
+        # Log metrics
+        log_history.append({
+            'epoch': epoch + 1,
+            'train_loss': avg_train_loss,
+            'val_dice': avg_val_dice
+        })
 
         # Save the best model
         if avg_val_dice > best_dice_score:
@@ -151,8 +167,13 @@ def main():
             torch.save(model.state_dict(), save_path)
             print(f"-> New best model saved to {save_path} with Dice Score: {best_dice_score:.4f}")
 
-    print("--- Training Finished ---")
+    # Save training log
+    log_df = pd.DataFrame(log_history)
+    log_save_path = os.path.join(MODEL_SAVE_DIR, 'training_log.csv')
+    log_df.to_csv(log_save_path, index=False)
+    print(f"--- Training Finished ---")
     print(f"Best Validation Dice Score: {best_dice_score:.4f}")
+    print(f"Training log saved to {log_save_path}")
 
 if __name__ == "__main__":
     main()

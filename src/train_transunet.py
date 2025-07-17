@@ -92,36 +92,25 @@ class DiceLoss(nn.Module):
         dice_score = (2. * intersection + self.smooth) / (pred_flat.sum() + target_flat.sum() + self.smooth)
         return 1 - dice_score
 
+import pandas as pd
+
+# ... (rest of the imports)
+
+# ... (rest of the code before main)
+
 # --- Main Training Logic ---
 def main():
     print(f"--- Starting TransUNet Training on {DEVICE} ---")
     print(f"Using ViT backbone: {VIT_MODEL_NAME}")
     
-    # Data Augmentation
-    train_transform = A.Compose([
-        A.Rotate(limit=35, p=0.5),
-        A.HorizontalFlip(p=0.5),
-        A.VerticalFlip(p=0.5),
-        ToTensorV2(),
-    ])
-    
-    val_transform = A.Compose([
-        ToTensorV2(),
-    ])
-
-    # Datasets and DataLoaders
-    train_dataset = ProstateDataset(TRAIN_IMAGE_DIR, TRAIN_MASK_DIR, transform=train_transform)
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
-    
-    test_dataset = ProstateDataset(TEST_IMAGE_DIR, TEST_MASK_DIR, transform=val_transform)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    # ... (data augmentation and dataloaders)
 
     # Model, Optimizer, Loss, and Scheduler
     model = TransUNet(
         img_size=256, 
         num_classes=1, 
         vit_model_name=VIT_MODEL_NAME, 
-        pretrained=False  # Changed to False to avoid potential dimension issues with pretrained weights
+        pretrained=False
     ).to(DEVICE)
     
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -131,6 +120,9 @@ def main():
     # Training Loop
     best_dice_score = 0.0
     os.makedirs(MODEL_SAVE_DIR, exist_ok=True)
+    
+    # For logging
+    log_history = []
 
     for epoch in range(NUM_EPOCHS):
         model.train()
@@ -175,14 +167,27 @@ def main():
         
         print(f"Epoch [{epoch+1}/{NUM_EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Dice Score: {avg_val_dice:.4f}, LR: {scheduler.get_last_lr()[0]:.1e}")
 
+        # Log metrics
+        log_history.append({
+            'epoch': epoch + 1,
+            'train_loss': avg_train_loss,
+            'val_dice': avg_val_dice,
+            'learning_rate': scheduler.get_last_lr()[0]
+        })
+
         if avg_val_dice > best_dice_score:
             best_dice_score = avg_val_dice
             save_path = os.path.join(MODEL_SAVE_DIR, 'best_transunet_model.pth')
             torch.save(model.state_dict(), save_path)
             print(f"-> New best model saved to {save_path} with Dice Score: {best_dice_score:.4f}")
 
+    # Save training log
+    log_df = pd.DataFrame(log_history)
+    log_save_path = os.path.join(MODEL_SAVE_DIR, 'training_log.csv')
+    log_df.to_csv(log_save_path, index=False)
     print("--- Training Finished ---")
     print(f"Best Validation Dice Score: {best_dice_score:.4f}")
+    print(f"Training log saved to {log_save_path}")
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@
 
 本项目旨在研究和开发基于深度学习的前列腺超声图像自动分割算法，以解决临床实践中前列腺轮廓提取的难题，为前列腺疾病的诊断和治疗提供更精确的影像学辅助工具。
 
-本项目将探索并实现先进的深度学习模型，包括经典的 **MicroSegNet**、**TransUNet**，以及根据最新研究设计的 **HM-SegNet (Hybrid Mamba-MicroSegNet)**。
+本项目将探索并实现先进的深度学习模型，包括经典的 **MicroSegNet** 和 **TransUNet**。
 
 ---
 
@@ -68,13 +68,9 @@ python -m src.preprocess
   ```bash
   python -m src.train_unet
   ```
-- **训练 TransUNet 模型**:
+- **训练 TransUNet 模型 (推荐)**:
   ```bash
   python -m src.train_transunet
-  ```
-- **训练 HM-SegNet 模型 (推荐的实验性模型)**:
-  ```bash
-  python -m src.train_hm_segnet
   ```
 
 **第三步：模型对比与消融研究 (GUI)**
@@ -97,17 +93,17 @@ python -m src.gui_predictor
 - **[✔️] 阶段一：基础框架搭建**
 - **[✔️] 阶段二：���型优化与重构**
 - **[✔️] 阶段三：集成先进架构 (U-Net, TransUNet)**
-- **[✔️] 阶段四：实现HM-SegNet**
-  - [X] **遵循技术文档**: 深入分析 `docs/mamba.md`，确定了将Mamba模块与`MicroSegNet`的密集连接块融合的正确技术路线。
-  - [X] **实现HM-SegNet**: 创建了 `src/hm_segnet.py`，通过继承`MicroSegNet`并替换其核心的`_DenseLayer`为`_MambaDenseLayer`，成功实现了混合式Mamba-MicroSegNet模型。
-  - [X] **创建训练脚本**: 为新模型配备了独立的训练脚本 `src/train_hm_segnet.py`，并更新了GUI以支持新模型。
+- **[✔️] 阶段四：Mamba架构探索 (已终止)**
+  - [X] **深入探索**: 尝试将Mamba模块与U-Net架构融合，以探索其在分割任务中的潜力。
+  - [X] **得出结论**: 经过系统性实验，我们发现Mamba的核心机制与U-Net的跳跃连接存在根本冲突，无法有效学习分割特征。
+  - [X] **终止路线**: **Mamba-UNet技术路线已被正式终止**。详细的技术总结请参阅 [**Mamba探索总结报告 (docs/MAMBA_EXPLORATION_SUMMARY.md)**](./docs/MAMBA_EXPLORATION_SUMMARY.md)。
 
 ---
 
 ## 路线图
 
 - **[▶️] 阶段五：深度训练与评估 (当前焦点)**
-  - [ ] **全面训练**: 对所有模型，特别是 **TransUNet** 和 **HM-SegNet**，进行充分的训练（例如50-100个epoch）以获得最优权重。
+  - [ ] **全面训练**: 对所有模型，特别是 **TransUNet**，进行充分的训练（例如50-100个epoch）以获得最优权重。
   - [ ] **定量分析**: 编写脚本计算并对比不同模型在测试集上的 Dice Score, IoU, Precision, Recall 等关键指标。
   - [ ] **定性分析**: 使用GUI工具，进行可视化对比，分析不同模型在具体病例上的优劣。
   - [ ] **准备研究报告**: 整理所有实验结果，撰写详细的技术报告或论文。
@@ -118,8 +114,8 @@ python -m src.gui_predictor
 
 * **编程语言**: Python
 * **深度学习框架**: **PyTorch**
-* **核心模型**: MicroSegNet, U-Net, TransUNet, Attention U-Net, HMSegNet
-* **主要库**: OpenCV, Albumentations, Nibabel, NumPy, Timm, Mamba-SSM
+* **核心模型**: MicroSegNet, U-Net, TransUNet, Attention U-Net
+* **主要库**: OpenCV, Albumentations, Nibabel, NumPy, Timm
 
 ## 数据集
 

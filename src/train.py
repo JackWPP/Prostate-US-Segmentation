@@ -8,7 +8,12 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from tqdm import tqdm
 
-from models_zoo.base_model.model import MicroSegNet # Import the model from model.py
+# Add project root to the Python path
+import sys
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(PROJECT_ROOT)
+
+from src.models_zoo.base_model.model import MicroSegNet # Import the model from model.py
 
 # --- Configuration ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -22,7 +27,7 @@ MODEL_SAVE_PATH = "models"
 # Hyperparameters
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 8
-NUM_EPOCHS = 25 # A starting point, can be adjusted
+NUM_EPOCHS = 50# A starting point, can be adjusted
 IMG_SIZE = 256
 
 # --- Dataset ---
@@ -108,6 +113,18 @@ def validate_model(loader, model, loss_fn):
     print(f"Validation -> Avg. Loss: {avg_val_loss:.4f}, Avg. Dice Score: {avg_dice_score:.4f}")
     return avg_dice_score
 
+import pandas as pd
+
+# ... (rest of the imports)
+
+# --- Configuration ---
+# ... (rest of the config)
+MODEL_SAVE_DIR = os.path.join("models", "base") # Standardized save directory
+MODEL_SAVE_PATH = os.path.join(MODEL_SAVE_DIR, "best_base_model.pth")
+LOG_SAVE_PATH = os.path.join(MODEL_SAVE_DIR, "training_log.csv")
+
+# ... (rest of the code before main)
+
 def main():
     print(f"Using device: {DEVICE}")
 
@@ -124,10 +141,11 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     # Create model save directory
-    if not os.path.exists(MODEL_SAVE_PATH):
-        os.makedirs(MODEL_SAVE_PATH)
+    os.makedirs(MODEL_SAVE_DIR, exist_ok=True)
 
     best_dice_score = 0.0
+    log_history = []
+    
     for epoch in range(NUM_EPOCHS):
         print(f"\n--- Epoch {epoch+1}/{NUM_EPOCHS} ---")
         
@@ -136,15 +154,27 @@ def main():
         
         dice_score = validate_model(val_loader, model, loss_fn)
 
+        # Log metrics
+        log_history.append({
+            'epoch': epoch + 1,
+            'train_loss': train_loss,
+            'val_dice': dice_score
+        })
+
         # Save the best model
         if dice_score > best_dice_score:
             best_dice_score = dice_score
-            model_path = os.path.join(MODEL_SAVE_PATH, "best_microsegnet_model.pth")
-            torch.save(model.state_dict(), model_path)
-            print(f"-> New best model saved to {model_path} with Dice Score: {dice_score:.4f}")
+            torch.save(model.state_dict(), MODEL_SAVE_PATH)
+            print(f"-> New best model saved to {MODEL_SAVE_PATH} with Dice Score: {dice_score:.4f}")
 
+    # Save training log
+    log_df = pd.DataFrame(log_history)
+    log_df.to_csv(LOG_SAVE_PATH, index=False)
+    
     print("\nTraining complete.")
     print(f"Best Dice Score achieved: {best_dice_score:.4f}")
+    print(f"Training log saved to {LOG_SAVE_PATH}")
+
 
 if __name__ == "__main__":
     main()
