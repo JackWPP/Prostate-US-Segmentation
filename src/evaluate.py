@@ -176,7 +176,7 @@ def main():
         },
         {
             "name": "MicroSegNetAttention",
-            "path": os.path.join(MODELS_DIR, "attention", "best_microsegnet_attention_model.pth"),
+            "path": os.path.join(MODELS_DIR, "attention", "best_attention_model.pth"),
             "class": MicroSegNetAttention(num_classes=1)
         },
         {

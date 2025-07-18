@@ -53,7 +53,7 @@ class ProstateDataset(Dataset):
             image = augmented['image']
             mask = augmented['mask']
             
-        return image, mask.unsqueeze(0) # Add channel dimension to mask
+        return image, mask
 
 # --- Loss Function ---
 class DiceLoss(nn.Module):
@@ -136,20 +136,31 @@ def main():
         # Validation
         model.eval()
         val_dice_score = 0.0
+        num_samples = 0
         with torch.no_grad():
             for images, masks in test_loader:
                 images = images.to(DEVICE)
                 masks = masks.to(DEVICE)
-                outputs = model(images)
                 
-                # Calculate Dice score for validation
+                # Get raw logits from the model
+                outputs = model(images)
+                # Apply sigmoid and threshold to get predictions
                 preds = (torch.sigmoid(outputs) > 0.5).float()
-                intersection = (preds * masks).sum()
-                union = preds.sum() + masks.sum()
-                dice = (2. * intersection) / (union + 1e-6)
-                val_dice_score += dice.item()
+                
+                # Iterate over each image in the batch to calculate Dice score
+                for i in range(images.size(0)):
+                    pred_single = preds[i].view(-1)
+                    mask_single = masks[i].view(-1)
+                    
+                    intersection = (pred_single * mask_single).sum()
+                    union = pred_single.sum() + mask_single.sum()
+                    
+                    dice = (2. * intersection) / (union + 1e-6)
+                    val_dice_score += dice.item()
+                
+                num_samples += images.size(0)
 
-        avg_val_dice = val_dice_score / len(test_loader)
+        avg_val_dice = val_dice_score / num_samples
         
         print(f"Epoch [{epoch+1}/{NUM_EPOCHS}], Train Loss: {avg_train_loss:.4f}, Val Dice Score: {avg_val_dice:.4f}")
         

@@ -100,7 +100,7 @@ class UNet(nn.Module):
         x = self.up3(x, x2)
         x = self.up4(x, x1)
         logits = self.outc(x)
-        return torch.sigmoid(logits) # Use sigmoid for binary segmentation
+        return logits # Return raw logits
 
 if __name__ == '__main__':
     print("Running U-Net unit test...")
