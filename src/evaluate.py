@@ -215,6 +215,7 @@ def main():
         avg_metrics['model'] = model_name
         results.append(avg_metrics)
 
+
         print(f"Results for {model_name}:")
         for key, value in avg_metrics.items():
             if key != 'model':
